@@ -1,29 +1,32 @@
 /* src/App.css */
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&display=swap');
 
+/* --- Global & Container Styles --- */
 .app-container {
   min-height: 100vh;
   padding: 40px 20px;
-  background: radial-gradient(circle at center, #1a0033 0%, #000 100%);
+  background: #000;
+  background-image: radial-gradient(circle at 50% 50%, #1a0033 0%, #050505 100%);
   color: white;
   font-family: 'Orbitron', sans-serif;
+  overflow-x: hidden;
   text-align: center;
 }
 
-.loader-box {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 80vh;
-  gap: 20px;
+/* --- Enhanced Neon Title with Animation --- */
+.neon-title {
+  font-size: clamp(1.8rem, 8vw, 3.8rem);
+  color: #fff;
+  text-shadow: 0 0 10px #00d2ff, 0 0 20px #00d2ff, 0 0 40px #00d2ff;
+  text-transform: uppercase;
+  margin-bottom: 5px;
+  letter-spacing: 4px;
+  animation: titlePulse 2s infinite ease-in-out;
 }
 
-.neon-title {
-  font-size: clamp(1.5rem, 6vw, 3.5rem);
-  color: #fff;
-  text-shadow: 0 0 10px #00d2ff, 0 0 20px #00d2ff;
-  margin-bottom: 20px;
+@keyframes titlePulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.8; transform: scale(0.98); }
 }
 
 .meta-info {
@@ -39,46 +42,56 @@
   font-weight: bold; 
 }
 
-/* Voting Grid Layout */
+/* --- Voting Grid Layout --- */
 .voting-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 30px;
-  max-width: 1200px;
-  margin: 0 auto;
+  max-width: 1300px;
+  margin: 40px auto;
   padding: 20px;
 }
 
-/* Candidate Card Styling */
+/* --- Card Design: Glassmorphism & Neon Border --- */
 .candidate-card {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid #ff007f;
-  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 0, 127, 0.5);
+  border-radius: 24px;
   padding: 20px;
-  box-shadow: 0 0 15px rgba(255, 0, 127, 0.2);
-  transition: border 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+  position: relative;
+  box-shadow: 0 0 15px rgba(255, 0, 127, 0.1);
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .candidate-card:hover {
-  border-color: #00d2ff;
-  box-shadow: 0 0 25px rgba(0, 210, 255, 0.4);
+  transform: translateY(-15px) scale(1.02);
+  border-color: #ff007f;
+  box-shadow: 0 0 30px rgba(255, 0, 127, 0.4);
 }
 
-/* Image Wrapper and Badge */
+/* --- Image Styling & Wrapper --- */
 .img-wrapper {
   position: relative;
   overflow: hidden;
-  border-radius: 15px;
-  height: 350px;
+  border-radius: 18px;
+  height: 380px;
   margin-bottom: 15px;
-  background: #111; /* ပုံမတက်ခင် အမည်းရောင်ပြထားမယ် */
+  background: #111;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .candidate-img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.5s ease;
+  filter: grayscale(30%) brightness(0.8);
+  transition: all 0.5s ease;
+}
+
+.candidate-card:hover .candidate-img {
+  filter: grayscale(0%) brightness(1.1);
+  transform: scale(1.05);
 }
 
 .id-badge {
@@ -89,10 +102,11 @@
   padding: 4px 12px;
   border-radius: 10px;
   font-size: 12px;
+  font-weight: bold;
   z-index: 5;
 }
 
-/* Voted Card Overlay - Updated with blur */
+/* --- Voted Overlay Blur --- */
 .voted-overlay {
   position: absolute;
   top: 0;
@@ -120,33 +134,43 @@
   font-weight: 900;
 }
 
-/* Button Styling and States */
+/* --- Neon Vote Button --- */
 .vote-btn {
   width: 100%;
-  padding: 15px;
+  padding: 16px;
   border: none;
-  border-radius: 10px;
-  background: #00d2ff;
+  border-radius: 12px;
+  background: linear-gradient(90deg, #00d2ff, #00a8cc);
   color: black;
   font-weight: 900;
+  font-family: 'Orbitron', sans-serif;
   cursor: pointer;
-  transition: all 0.2s ease;
+  box-shadow: 0 4px 15px rgba(0, 210, 255, 0.4);
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 2px;
 }
 
 .vote-btn:hover:not(:disabled) {
-  background: #00b8e6;
-  transform: scale(1.02);
+  background: linear-gradient(90deg, #ff007f, #ff4da6);
+  color: white;
+  box-shadow: 0 0 20px rgba(255, 0, 127, 0.6);
+  transform: translateY(-2px);
+}
+
+.vote-btn:active {
+  transform: scale(0.95);
 }
 
 .vote-btn:disabled, .vote-btn.disabled {
-  background: #222 !important;
-  color: #555 !important;
+  background: #1a1a1a !important;
+  color: #444 !important;
   border: 1px solid #333;
   box-shadow: none;
   cursor: not-allowed;
 }
 
-/* Custom Status Notification Styles */
+/* --- Custom Status Notification Styles --- */
 .status-overlay {
   position: fixed;
   top: 0;
@@ -187,11 +211,32 @@
   letter-spacing: 2px;
 }
 
-/* Footer Section */
+/* --- Loading & Footer --- */
+.loader-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 80vh;
+  gap: 20px;
+}
+
+.loading-text {
+  font-size: 1.5rem;
+  color: #00d2ff;
+  letter-spacing: 5px;
+  animation: blink 1.5s infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
 .footer {
   margin-top: 60px;
-  padding: 40px 0;
-  opacity: 0.6;
+  padding: 40px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .footer-status {
@@ -201,12 +246,15 @@
   gap: 8px;
   margin-bottom: 10px;
   color: #00d2ff;
+  opacity: 0.6;
 }
 
 .dev-credit {
-  margin-top: 10px;
-  font-weight: 900;
+  font-size: 1.2rem;
+  letter-spacing: 3px;
   background: linear-gradient(to right, #00d2ff, #ff007f);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+  font-weight: 900;
+  text-transform: uppercase;
 }
