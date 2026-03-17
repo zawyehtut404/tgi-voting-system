@@ -8,7 +8,7 @@ const API_URL = "https://api.sheetbest.com/sheets/a8fb09fc-0b1f-4ad8-850e-98d8d4
 
 function App() {
   const [candidates, setCandidates] = useState([]);
-  const [voted, setVoted] = useState(false);
+  const [votedStatus, setVotedStatus] = useState({ boy: false, girl: false });
   const [loading, setLoading] = useState(true);
   const [status, setStatus] = useState({ show: false, type: '', message: '' });
 
@@ -19,9 +19,9 @@ function App() {
 
   useEffect(() => {
     fetchData();
-    if (localStorage.getItem('tgi_voted_2026')) {
-      setVoted(true);
-    }
+    const hasVotedBoy = localStorage.getItem('tgi_voted_boy') === 'true';
+    const hasVotedGirl = localStorage.getItem('tgi_voted_girl') === 'true';
+    setVotedStatus({ boy: hasVotedBoy, girl: hasVotedGirl });
   }, []);
 
   const fetchData = async () => {
@@ -40,8 +40,14 @@ function App() {
     setTimeout(() => setStatus({ show: false, type: '', message: '' }), 3000);
   };
 
-  const handleVote = async (id, currentVotes) => {
-    if (voted) return showNotification('error', 'YOU HAVE ALREADY VOTED!');
+  const handleVote = async (id, currentVotes, gender) => {
+    const genderKey = gender?.toLowerCase(); 
+    const label = genderKey === 'boy' ? 'KING' : 'QUEEN';
+    
+    if (votedStatus[genderKey]) {
+      return showNotification('error', `YOU HAVE ALREADY VOTED FOR A ${label}!`);
+    }
+    
     if (isExpired) return showNotification('error', 'VOTING PERIOD HAS ENDED.');
 
     try {
@@ -50,10 +56,10 @@ function App() {
       });
 
       if(response.status === 200 || response.status === 201) {
-        localStorage.setItem('tgi_voted_2026', 'true');
-        setVoted(true);
+        localStorage.setItem(`tgi_voted_${genderKey}`, 'true');
+        setVotedStatus(prev => ({ ...prev, [genderKey]: true }));
         fetchData(); 
-        showNotification('success', 'VOTE RECORDED SUCCESSFULLY!');
+        showNotification('success', `VOTE FOR ${label} RECORDED!`);
       }
     } catch (err) {
       showNotification('error', 'DATABASE UPDATE FAILED.');
@@ -65,15 +71,12 @@ function App() {
       <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 2, ease: "linear" }}>
         <HardDrive size={40} color="#00d2ff" />
       </motion.div>
-      <motion.h2 animate={{ opacity: [0.3, 1, 0.3] }} transition={{ repeat: Infinity, duration: 1.5 }}>
-        INITIALIZING SYSTEM...
-      </motion.h2>
+      <motion.h2 className="loading-text">INITIALIZING SYSTEM...</motion.h2>
     </div>
   );
 
   return (
     <div className="app-container">
-      {/* --- Custom Notification Overlay --- */}
       <AnimatePresence>
         {status.show && (
           <motion.div 
@@ -99,33 +102,39 @@ function App() {
       </motion.header>
 
       <div className="voting-grid">
-        {candidates.map((person, index) => (
-          <motion.div 
-            key={person.id} 
-            className="candidate-card"
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.1 }}
-            whileHover={{ y: -5 }}
-          >
-            <div className="img-wrapper">
-              <img src={person.image_url || "https://via.placeholder.com/300x400"} className="candidate-img" alt={person.name} />
-              <div className="id-badge">ID: {person.id}</div>
-              {voted && <div className="voted-overlay"><CheckCircle size={40} color="#00ff00" /></div>}
-            </div>
+        {candidates.map((person, index) => {
+          const genderKey = person.gender?.toLowerCase();
+          const hasVotedThisCategory = votedStatus[genderKey];
+          // boy ဆိုရင် KING ၊ တခြားဆိုရင် QUEEN လို့ ပြမယ်
+          const voteLabel = genderKey === 'boy' ? 'KING' : 'QUEEN';
 
-            <h2 className="candidate-name">{person.name}</h2>
-            <p className="vote-display">{person.vote_count || 0} VOTES</p>
-
-            <button 
-              onClick={() => handleVote(person.id, person.vote_count)}
-              disabled={voted || isExpired}
-              className={`vote-btn ${voted ? 'disabled' : ''}`}
+          return (
+            <motion.div 
+              key={person.id} 
+              className="candidate-card"
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.1 }}
             >
-              {voted ? "COMPLETED" : isExpired ? "CLOSED" : "CAST VOTE"}
-            </button>
-          </motion.div>
-        ))}
+              <div className="img-wrapper">
+                <img src={person.image_url || "https://via.placeholder.com/300x400"} className="candidate-img" alt={person.name} />
+                <div className="id-badge">ID: {person.id}</div>
+                {hasVotedThisCategory && <div className="voted-overlay"><CheckCircle size={40} color="#00ff00" /></div>}
+              </div>
+
+              <h2 className="candidate-name">{person.name}</h2>
+              <p className="vote-display">{person.vote_count || 0} VOTES</p>
+
+              <button 
+                onClick={() => handleVote(person.id, person.vote_count, person.gender)}
+                disabled={hasVotedThisCategory || isExpired}
+                className={`vote-btn ${hasVotedThisCategory ? 'disabled' : ''}`}
+              >
+                {hasVotedThisCategory ? "VOTED" : isExpired ? "CLOSED" : `VOTE ${voteLabel}`}
+              </button>
+            </motion.div>
+          );
+        })}
       </div>
 
       <footer className="footer">
