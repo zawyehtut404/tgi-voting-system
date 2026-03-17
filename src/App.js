@@ -13,7 +13,7 @@ function App() {
   const [status, setStatus] = useState({ show: false, type: '', message: '' });
 
   const startTime = new Date("2026-03-16T00:00:00");
-  const endTime = new Date("2026-03-18T23:59:59");
+  const endTime = new Date("2026-03-17T18:59:59");
   const now = new Date();
   const isExpired = now < startTime || now > endTime;
 
