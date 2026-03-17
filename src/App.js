@@ -105,7 +105,6 @@ function App() {
         {candidates.map((person, index) => {
           const genderKey = person.gender?.toLowerCase();
           const hasVotedThisCategory = votedStatus[genderKey];
-          // boy ဆိုရင် KING ၊ တခြားဆိုရင် QUEEN လို့ ပြမယ်
           const voteLabel = genderKey === 'boy' ? 'KING' : 'QUEEN';
 
           return (
@@ -123,7 +122,8 @@ function App() {
               </div>
 
               <h2 className="candidate-name">{person.name}</h2>
-              <p className="vote-display">{person.vote_count || 0} VOTES</p>
+              {/* Vote Count နေရာမှာ Category Label ကို အစားထိုးလိုက်ပါတယ် */}
+              <p className="vote-display" style={{ color: '#ff007f', fontSize: '1rem' }}>CANDIDATE FOR {voteLabel}</p>
 
               <button 
                 onClick={() => handleVote(person.id, person.vote_count, person.gender)}
